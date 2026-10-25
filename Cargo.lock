@@ -144,7 +144,7 @@ dependencies = [
 
 [[package]]
 name = "gutenberg"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "chek-extension 0.6.0 (git+https://github.com/readchek/chek?rev=8d6b807e3637215106df350ab8c3e803ee01829a)",
  "roxmltree",
