@@ -1,0 +1,12 @@
+[package]
+name = "gutenberg"
+version = "0.1.0"
+edition = "2024"
+publish = false
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+chek-extension = { git = "https://github.com/readchek/chek", rev = "8d6b807e3637215106df350ab8c3e803ee01829a" }
+roxmltree = "0.21"
