@@ -1,0 +1,13 @@
+[package]
+name = "peppercarrot"
+version = "0.1.0"
+edition = "2024"
+publish = false
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+chek-extension = { git = "https://github.com/readchek/chek", rev = "0ddcba22230d49cbc9dbae8b1f0c9dcb592ca9d6" }
+scraper = { version = "0.24", default-features = false }
+

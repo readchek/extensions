@@ -1,0 +1,9 @@
+[workspace]
+members = ["peppercarrot"]
+resolver = "3"
+
+[profile.release]
+opt-level = "s"
+lto = true
+strip = true
+codegen-units = 1

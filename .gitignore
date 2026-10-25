@@ -1,0 +1,6 @@
+/target/
+/dist/
+/.chek/
+/.cloudflare/
+.env
+/node_modules/
