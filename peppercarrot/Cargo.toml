@@ -10,4 +10,3 @@ crate-type = ["cdylib"]
 [dependencies]
 chek-extension = { git = "https://github.com/readchek/chek", rev = "0ddcba22230d49cbc9dbae8b1f0c9dcb592ca9d6" }
 scraper = { version = "0.24", default-features = false }
-
