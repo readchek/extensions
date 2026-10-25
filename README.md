@@ -20,10 +20,17 @@ Repository URL: **https://extensions.chek.page/index.json**
 
 ## Sources
 
-- **Pepper&Carrot**: English episodes from [David Revoy's official website](https://www.peppercarrot.com/en/webcomics/peppercarrot.html). Artwork is licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/); attribution and original credit pages are preserved. Chek is not affiliated with the author.
-- **Project Gutenberg Classics**: twelve English classics, including Pride and Prejudice, Alice's Adventures in Wonderland, and The Adventures of Sherlock Holmes. Books open as EPUBs with their source, license notice, and credits. Each edition must be marked public domain in the USA; copyright rules elsewhere may differ. Gutenberg does not supply content ratings. This is a curated collection, not its full catalog.
+| Source | What it offers |
+| --- | --- |
+| **Pepper&Carrot** | English episodes from [David Revoy's official website](https://www.peppercarrot.com/en/webcomics/peppercarrot.html), under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/), with attribution and the original credit pages kept |
+| **Project Gutenberg Classics** | Twelve curated English classics, such as Pride and Prejudice, Alice's Adventures in Wonderland and The Adventures of Sherlock Holmes, opened as EPUBs with their source, license notice and credits |
 
-The source code license does not replace the publications' licenses. Extensions fetch publications from their original hosts; this repository does not bundle artwork.
+- Chek isn't affiliated with the authors or hosts.
+- Extensions fetch publications from their original hosts. This repository
+  bundles no artwork, and its code license doesn't replace the publications'
+  licenses.
+- Every Gutenberg edition must be marked public domain in the USA; copyright
+  rules elsewhere may differ. Gutenberg doesn't supply content ratings.
 
 ## Development
 
@@ -35,7 +42,12 @@ chek ext build --name 'Chek Extensions'
 
 The generated `dist/index.json` and WASM components form a public extension repository.
 
-Gutenberg requires the server and CLI changes from [Chek #76](https://github.com/readchek/chek/pull/76). Its file-content export declares EPUB support; older hosts cannot read these books. Metadata comes from Gutenberg's [documented RDF feeds](https://www.gutenberg.org/ebooks/offline_catalogs.html), cached for one day. Search runs over the curated list without network requests. The original EPUB license and credit pages remain intact.
+Notes on Gutenberg:
+
+- It needs Chek server 0.2.0 or later, which can serve books and files
+  alongside comic pages. Older servers can't read these books.
+- Metadata comes from Gutenberg's [documented RDF feeds](https://www.gutenberg.org/ebooks/offline_catalogs.html), cached for one day.
+- Search runs over the curated list without network requests.
 
 ## Deployment
 
