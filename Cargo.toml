@@ -1,5 +1,5 @@
 [workspace]
-members = ["peppercarrot"]
+members = ["peppercarrot", "gutenberg"]
 resolver = "3"
 
 [profile.release]

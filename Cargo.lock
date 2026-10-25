@@ -37,6 +37,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "chek-extension"
+version = "0.6.0"
+source = "git+https://github.com/readchek/chek?rev=8d6b807e3637215106df350ab8c3e803ee01829a#8d6b807e3637215106df350ab8c3e803ee01829a"
+dependencies = [
+ "serde",
+ "serde_json",
+ "wit-bindgen",
+]
+
+[[package]]
 name = "cssparser"
 version = "0.35.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -130,6 +140,14 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c31b6d751ae2c7f11320402d34e41349dd1016f8d5d45e48c4312bc8625af50c"
 dependencies = [
  "byteorder",
+]
+
+[[package]]
+name = "gutenberg"
+version = "0.1.1"
+dependencies = [
+ "chek-extension 0.6.0 (git+https://github.com/readchek/chek?rev=8d6b807e3637215106df350ab8c3e803ee01829a)",
+ "roxmltree",
 ]
 
 [[package]]
@@ -287,7 +305,7 @@ dependencies = [
 name = "peppercarrot"
 version = "0.1.0"
 dependencies = [
- "chek-extension",
+ "chek-extension 0.6.0 (git+https://github.com/readchek/chek?rev=0ddcba22230d49cbc9dbae8b1f0c9dcb592ca9d6)",
  "scraper",
 ]
 
@@ -399,6 +417,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ed2bf2547551a7053d6fdfafda3f938979645c44812fbfcda098faae3f1a362d"
 dependencies = [
  "bitflags",
+]
+
+[[package]]
+name = "roxmltree"
+version = "0.21.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9da7f59328b09405b181fee1018925fad50f157afb43c0c0f5c522c256dd5907"
+dependencies = [
+ "memchr",
 ]
 
 [[package]]
