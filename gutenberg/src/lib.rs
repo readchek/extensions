@@ -11,6 +11,8 @@ const DC: &str = "http://purl.org/dc/terms/";
 const PG: &str = "http://www.gutenberg.org/2009/pgterms/";
 const RDF: &str = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
 const PUBLIC_DOMAIN: &str = "Public domain in the USA.";
+/// The largest edition, by the RDF's size, picked while a lighter one exists.
+const LIGHT_EPUB: u64 = 32 << 20;
 const BOOKS: &[(&str, &str, &str)] = &[
     ("1342", "Pride and Prejudice", "Jane Austen"),
     ("11", "Alice's Adventures in Wonderland", "Lewis Carroll"),
@@ -134,7 +136,7 @@ impl ChapterContent for Source {
                 format: ContentFormat::Epub,
                 url: book.url,
                 headers: vec![],
-                size: Some(book.size),
+                size: None,
                 file_name: Some(format!("pg{id}.epub")),
             }),
             rights: Some(Rights {
@@ -156,13 +158,15 @@ struct Book {
     issued: Option<String>,
     url: String,
     revision: String,
-    size: u64,
 }
 
 fn book(id: &str) -> Result<Book, Error> {
-    if !BOOKS.iter().any(|(known, _, _)| *known == id) {
-        return Err(Error::NotFound);
-    }
+    // The curated names, not the RDF's, so search, the series and its
+    // credits agree and authors read "Jane Austen" rather than "Austen, Jane".
+    let (_, title, author) = BOOKS
+        .iter()
+        .find(|(known, _, _)| *known == id)
+        .ok_or(Error::NotFound)?;
     let xml = Get::new(format!("{BASE}/cache/epub/{id}/pg{id}.rdf"))
         .cache(86400)
         .text()?;
@@ -188,29 +192,8 @@ fn book(id: &str) -> Result<Book, Error> {
             "The selected edition is no longer in English".into(),
         ));
     }
-    let title = child_text(ebook, DC, "title")
-        .ok_or_else(|| Error::Parse("Book title is missing".into()))?;
-    let authors: Vec<_> = ebook
-        .children()
-        .filter(|n| n.has_tag_name((DC, "creator")))
-        .filter_map(|n| {
-            n.descendants()
-                .find(|n| n.has_tag_name((PG, "name")))
-                .and_then(|n| n.text())
-        })
-        .map(|name| Contributor {
-            name: name.into(),
-            role: "author".into(),
-        })
-        .collect();
     let credits = format!(
-        "{} — {}. Project Gutenberg. {}",
-        title,
-        authors
-            .iter()
-            .map(|a| a.name.as_str())
-            .collect::<Vec<_>>()
-            .join(", "),
+        "{title} — {author}. Project Gutenberg. {}",
         child_text(ebook, PG, "marc508").unwrap_or_default()
     );
     let mut formats: Vec<_> = ebook
@@ -223,8 +206,14 @@ fn book(id: &str) -> Result<Book, Error> {
         })
         .filter_map(|n| n.attribute((RDF, "about")).map(|url| (n, url)))
         .filter(|(_, url)| url.starts_with(&format!("{BASE}/ebooks/{id}.epub")))
+        .map(|(n, url)| {
+            // The RDF's sizes are close to, not exactly, what's served, so
+            // they only pick an edition and never reach clients.
+            let extent = child_text(n, DC, "extent").and_then(|s| s.parse::<u64>().ok());
+            (n, url, extent.unwrap_or(u64::MAX))
+        })
         .collect();
-    formats.sort_by_key(|(_, url)| {
+    formats.sort_by_key(|(_, url, _)| {
         if url.ends_with(".epub3.images") {
             0
         } else if url.ends_with(".epub.images") {
@@ -233,22 +222,22 @@ fn book(id: &str) -> Result<Book, Error> {
             2
         }
     });
-    let (file, url) = formats
-        .first()
+    // Illustrated editions first, unless one is too heavy to open
+    // comfortably on a phone; then the lightest, such as `.epub.noimages`.
+    let (file, url, _) = formats
+        .iter()
+        .find(|(_, _, extent)| *extent <= LIGHT_EPUB)
+        .or_else(|| formats.iter().min_by_key(|(_, _, extent)| *extent))
         .ok_or_else(|| Error::Parse("No supported EPUB found".into()))?;
-    let size = child_text(*file, DC, "extent")
-        .and_then(|s| s.parse::<u64>().ok())
-        .filter(|size| *size > 0 && *size <= 128 * 1024 * 1024)
-        .ok_or_else(|| {
-            Error::Other("EPUB size is missing or exceeds Chek's 128 MiB limit".into())
-        })?;
     let revision = child_text(*file, DC, "modified")
         .ok_or_else(|| Error::Parse("EPUB revision is missing".into()))?;
     Ok(Book {
-        title,
-        authors,
+        title: (*title).into(),
+        authors: vec![Contributor {
+            name: (*author).into(),
+            role: "author".into(),
+        }],
         credits,
-        size,
         revision,
         url: (*url).into(),
         summary: child_text(ebook, PG, "marc520").unwrap_or_default(),
