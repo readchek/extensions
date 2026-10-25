@@ -1,6 +1,20 @@
-# Chek Extensions
+<p align="center">
+  <img src="https://raw.githubusercontent.com/readchek/chek.page/main/public/assets/logos/mark.svg" alt="Chek" width="80" height="80" />
+</p>
 
-Public source extensions supported by Chek. The catalog requires no account or token.
+<h1 align="center">Chek Extensions</h1>
+
+<p align="center">Official public source extensions for <a href="https://github.com/readchek/chek">Chek</a>.</p>
+
+<p align="center">
+  <a href="https://extensions.chek.page/index.json">Catalog</a>
+  ·
+  <a href="https://github.com/readchek/chek/blob/main/docs/extension-repositories.md">Documentation</a>
+  ·
+  <a href="https://github.com/readchek/extensions/issues">Issues</a>
+</p>
+
+Add the catalog to your Chek server. No account or token is required.
 
 Repository URL: **https://extensions.chek.page/index.json**
 
@@ -10,7 +24,7 @@ Repository URL: **https://extensions.chek.page/index.json**
 
 The source code license does not replace the publications' licenses. Extensions fetch publications from their original hosts; this repository does not bundle artwork.
 
-## Build
+## Development
 
 Install Rust's `wasm32-wasip2` target and the [Chek CLI](https://github.com/readchek/chek), then run:
 
@@ -20,11 +34,15 @@ chek ext build --name 'Chek Extensions'
 
 The generated `dist/index.json` and WASM components form a public extension repository.
 
-To publish the catalog and its custom domain with Cloudflare CLI:
+## Deployment
+
+Publish the catalog and its custom domain with Cloudflare CLI:
 
 ```sh
 bun install --frozen-lockfile
 bun run deploy
 ```
 
-Project Gutenberg awaits [file-based source support](https://github.com/readchek/chek/issues/74). Digital Comic Museum is not included while automated access remains unverified.
+## License
+
+Extension code is licensed under [MIT](LICENSE). Publications retain their source licenses.
