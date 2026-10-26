@@ -11,7 +11,7 @@
   ·
   <a href="https://github.com/readchek/chek/blob/main/docs/extension-repositories.md">Documentation</a>
   ·
-  <a href="https://github.com/readchek/extensions/issues">Issues</a>
+  <a href="https://github.com/readchek/chek/issues/new/choose">Report a problem</a>
 </p>
 
 Add the catalog to your Chek server. No account or token is required.
