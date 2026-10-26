@@ -51,7 +51,12 @@ Notes on Gutenberg:
 
 ## Deployment
 
-Publish the catalog and its custom domain with Cloudflare CLI:
+Every push to `main` builds the catalog and publishes it at
+extensions.chek.page through the Deploy workflow, which signs in with the
+`CLOUDFLARE_API_TOKEN` repository secret. To redeploy without a push, run the
+workflow from the Actions tab.
+
+To publish from your own machine, sign in with `cf auth login` and run:
 
 ```sh
 bun install --frozen-lockfile
