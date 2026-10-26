@@ -1,0 +1,61 @@
+name: Deploy
+
+# Builds the extensions and publishes the catalog to Cloudflare (the
+# `chek-extensions` Worker at extensions.chek.page) after every push to
+# main. Run it from the Actions tab to redeploy without a push.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# A deploy that has started always finishes, and only the newest waiting
+# one runs after it, so an older catalog can't replace a newer one.
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  # The Chek release whose CLI builds the catalog. Move it forward on
+  # purpose, like the SDK revision the sources pin.
+  CHEK_CLI_VERSION: 0.3.0
+
+jobs:
+  deploy:
+    name: Deploy to extensions.chek.page
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: https://extensions.chek.page/index.json
+    steps:
+      - uses: actions/checkout@v7
+      - uses: dtolnay/rust-toolchain@1.97
+        with:
+          targets: wasm32-wasip2
+      - uses: Swatinem/rust-cache@v2
+      # Building the CLI takes minutes, so it's kept between runs and only
+      # rebuilt when the version changes.
+      - name: Cache the Chek CLI
+        id: chek-cli
+        uses: actions/cache@v4
+        with:
+          path: ~/.cargo/bin/chek
+          key: chek-cli-${{ env.CHEK_CLI_VERSION }}-${{ runner.os }}-${{ runner.arch }}
+      - name: Install the Chek CLI
+        if: steps.chek-cli.outputs.cache-hit != 'true'
+        run: cargo install --locked --git https://github.com/readchek/chek --tag "$CHEK_CLI_VERSION" chek-cli
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install --frozen-lockfile
+      # `cf` signs in with the token in the environment instead of the
+      # browser. The account comes from cloudflare.config.ts.
+      - name: Build and deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          if [ -z "$CLOUDFLARE_API_TOKEN" ]; then
+            echo "::error::Add a CLOUDFLARE_API_TOKEN secret in Settings, Secrets and variables, Actions"
+            exit 1
+          fi
+          bun run deploy
