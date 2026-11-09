@@ -20,7 +20,7 @@ permissions:
 env:
   # The Chek release whose CLI builds the catalog. Move it forward on
   # purpose, like the SDK revision the sources pin.
-  CHEK_CLI_VERSION: 0.3.0
+  CHEK_CLI_VERSION: 0.5.4
 
 jobs:
   deploy:
