@@ -1,0 +1,49 @@
+name: CI
+
+# Checks every pull request before it can reach main, where a push deploys
+# the catalog. The extensions are formatted, linted for the WebAssembly
+# target they ship as, tested, and built into the catalog the way the
+# deploy builds it.
+on:
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  # The same Chek release the deploy builds with; keep the two in step.
+  CHEK_CLI_VERSION: 0.5.4
+
+jobs:
+  check:
+    name: Extensions
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: dtolnay/rust-toolchain@1.97
+        with:
+          targets: wasm32-wasip2
+          components: rustfmt, clippy
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo fmt --all --check
+      - run: cargo clippy --locked --target wasm32-wasip2 --all-targets -- -D warnings
+      - run: cargo test --locked
+      # The deploy's cache, so the CLI is rarely built here.
+      - name: Cache the Chek CLI
+        id: chek-cli
+        uses: actions/cache@v4
+        with:
+          path: ~/.cargo/bin/chek
+          key: chek-cli-${{ env.CHEK_CLI_VERSION }}-${{ runner.os }}-${{ runner.arch }}
+      - name: Install the Chek CLI
+        if: steps.chek-cli.outputs.cache-hit != 'true'
+        run: cargo install --locked --git https://github.com/readchek/chek --tag "$CHEK_CLI_VERSION" chek-cli
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install --frozen-lockfile
+      # Fails when an extension no longer builds or reads its manifest, or
+      # the catalog can't be packaged.
+      - run: bun run build
